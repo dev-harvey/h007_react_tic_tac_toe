@@ -7,6 +7,7 @@ function Square({ value, onSquareClick }) {
 export default function Game() {
   const [history, setHistory] = useState([Array(9).fill(null)]);
   const [currentMove, setCurrentMove] = useState(0);
+  const [reverseMoveOrder, setReverseMoveOrder] = useState(false);
   const currentSquares = history[currentMove];
   const xIsNext = currentMove % 2 === 0;
 
@@ -46,13 +47,20 @@ export default function Game() {
     );
   });
 
+  function onToggleClick() {
+    setReverseMoveOrder(!reverseMoveOrder);
+  }
+
+  const orderedMoves = reverseMoveOrder ? [...moves].reverse() : [...moves];
+
   return (
     <div className="game">
       <div className="game-board">
         <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay}/>
       </div>
       <div className="game-info">
-        <ol>{moves}</ol>
+        <button className="toggle" onClick={ onToggleClick }>Toggle move order</button>
+        <ul>{orderedMoves}</ul>
       </div>
     </div>
   );
@@ -85,6 +93,8 @@ function Board({xIsNext,squares,onPlay}) {
     boardRows.push(<div key={i} className="board-row">{thisRowsCols}</div>);
   }
 
+  
+
   return (
     <>
       <div className="status">{status}</div>
@@ -115,9 +125,7 @@ function Board({xIsNext,squares,onPlay}) {
       {boardRows}
     </>
   );
-
   */
-
 }
 
 function calculateWinner(squares) {
