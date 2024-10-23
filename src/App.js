@@ -75,7 +75,6 @@ function Board({xIsNext,squares,onPlay}) {
     status = "Next player: " + (xIsNext ? "X" : "O");
   }
 
-
   let boardCols = Array(9).fill(null).map((cols, i) => {
     return <Square key={i}  value={squares[i]} onSquareClick={() => {handleClick(i)}}/>
   });
@@ -92,6 +91,33 @@ function Board({xIsNext,squares,onPlay}) {
       {boardRows}
     </>
   ); 
+
+  /* Slightly more elegant method that only uses one loop, provided by AI. Provided here for reference. The idea of using a function to generate the JSX code for each square didn't occur to me but is clever. Using '_' as a variable name is done to show that the variable is intentionally unused.
+
+  const renderSquare = (i) => (
+    <Square key={i} value={squares[i]} onSquareClick={() => handleClick(i)} />
+  );
+
+  const boardRows = Array.from({ length: 3 }, (_, rowIndex) => {
+    const start = rowIndex * 3;
+    const squaresInRow = Array.from({ length: 3 }, (_, colIndex) => renderSquare(start + colIndex));
+    
+    return (
+      <div key={rowIndex} className="board-row">
+        {squaresInRow}
+      </div>
+    );
+  });
+
+  return (
+    <>
+      <div className="status">{status}</div>
+      {boardRows}
+    </>
+  );
+
+  */
+
 }
 
 function calculateWinner(squares) {
