@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
-function Square({ value, onSquareClick }) {
-  return <button className="square" onClick={onSquareClick}>{value}</button>;
+function Square({ value, onSquareClick, classNames }) {
+  return <button className={classNames} onClick={onSquareClick}>{value}</button>;
 }
 
 export default function Game() {
@@ -56,7 +56,7 @@ export default function Game() {
   return (
     <div className="game">
       <div className="game-board">
-        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay}/>
+        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} currentMove={currentMove}/>
       </div>
       <div className="game-info">
         <button className="toggle" onClick={ onToggleClick }>Toggle move order</button>
@@ -66,7 +66,7 @@ export default function Game() {
   );
 }
 
-function Board({xIsNext,squares,onPlay}) {
+function Board({xIsNext,squares,onPlay, currentMove}) {
   function handleClick(i) {
     if (squares[i] || calculateWinner(squares)) {
       return;
@@ -75,16 +75,26 @@ function Board({xIsNext,squares,onPlay}) {
     nextSquares[i] = xIsNext ? "X" : "O";
     onPlay(nextSquares);
   }
-  const winner = calculateWinner(squares);
+  const winnerData = calculateWinner(squares);
+  const winner = winnerData?.winner;
+  const winningSquares = winnerData?.winningSquares ?? [];
   let status;
   if (winner) {
     status = "Winner: " + winner;
   } else {
-    status = "Next player: " + (xIsNext ? "X" : "O");
+    if (currentMove === 9) {
+      status = "Game over, it's a draw"
+    } else {
+      status = "Next player: " + (xIsNext ? "X" : "O");
+    }
   }
 
   let boardCols = Array(9).fill(null).map((cols, i) => {
-    return <Square key={i}  value={squares[i]} onSquareClick={() => {handleClick(i)}}/>
+    let squareClassNames = ["square"];
+    if (winningSquares.includes(i)) {
+      squareClassNames.push("winner");
+    }
+    return <Square key={i} classNames={squareClassNames.join(" ")}  value={squares[i]} onSquareClick={() => {handleClick(i)}}/>
   });
 
   let boardRows = [];
@@ -92,8 +102,6 @@ function Board({xIsNext,squares,onPlay}) {
     let thisRowsCols = boardCols.slice(i,i+3);
     boardRows.push(<div key={i} className="board-row">{thisRowsCols}</div>);
   }
-
-  
 
   return (
     <>
@@ -142,7 +150,10 @@ function calculateWinner(squares) {
   for (let i = 0; i < lines.length; i++) {
     const [a, b, c] = lines[i];
     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return squares[a];
+      return {
+        winner: squares[a],
+        winningSquares: lines[i]
+      }
     }
   }
   return null;
